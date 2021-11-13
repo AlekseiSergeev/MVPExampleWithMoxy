@@ -1,39 +1,34 @@
-package com.example.mvpexample.presenter
+package com.example.mvpexample.presentation.presenter.login
 
 
 import android.util.Log
+import com.arellomobile.mvp.InjectViewState
+import com.arellomobile.mvp.MvpPresenter
 import com.example.mvpexample.domain.implemetations.AuthRepositoryImpl
-import com.example.mvpexample.ui.login.LoginView
+import com.example.mvpexample.presentation.view.login.LoginView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
-class LoginPresenterImpl (): LoginPresenter {
-
-    private val authRepository = AuthRepositoryImpl()
-    private var viewState: WeakReference<LoginView>? = null
-
-    fun attachView(view: LoginView) {
-        viewState = WeakReference(view)
-    }
+@InjectViewState
+class LoginPresenterImpl (private val authRepository: AuthRepositoryImpl): LoginPresenter, MvpPresenter<LoginView>() {
 
     override fun login(email: String, password: String) {
 
         resetErrors()
 
         if(!validateEmail(email)){
-            viewState?.get()?.showEmailError("Enter email")
+            viewState.showEmailError("Enter email")
             return
         }
 
         if(!validatePassword(password)) {
-            viewState?.get()?.showPasswordError("Enter password")
+            viewState.showPasswordError("Enter password")
             return
         }
 
-        viewState?.get()?.showProgressBar()
+        viewState.showProgressBar()
 
         CoroutineScope(Dispatchers.IO).async {
             val errorMessage = authRepository.login(email,
@@ -42,13 +37,13 @@ class LoginPresenterImpl (): LoginPresenter {
             if (errorMessage.isEmpty()) {
                 launch ( Dispatchers.Main ) {
                     Log.d("LoginPresenter", "Success. Login: $email , password: $password")
-                    viewState?.get()?.showSuccess()
+                    viewState.showSuccess()
                 }
             }
             else {
                 launch ( Dispatchers.Main ) {
                     Log.d("LoginPresenter", "Error: $errorMessage")
-                    viewState?.get()?.showError(errorMessage)
+                    viewState.showError(errorMessage)
                 }
             }
         }
@@ -63,7 +58,7 @@ class LoginPresenterImpl (): LoginPresenter {
     }
 
     private fun resetErrors() {
-        viewState?.get()?.showEmailError("")
-        viewState?.get()?.showPasswordError("")
+        viewState.showEmailError("")
+        viewState.showPasswordError("")
     }
 }

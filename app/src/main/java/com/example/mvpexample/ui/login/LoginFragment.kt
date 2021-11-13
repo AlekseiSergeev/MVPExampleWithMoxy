@@ -7,16 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import com.arellomobile.mvp.MvpAppCompatFragment
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.example.mvpexample.databinding.FragmentLoginBinding
-import com.example.mvpexample.presenter.LoginPresenterImpl
+import com.example.mvpexample.domain.implemetations.AuthRepositoryImpl
+import com.example.mvpexample.presentation.presenter.login.LoginPresenterImpl
+import com.example.mvpexample.presentation.view.login.LoginView
 
 
-class LoginFragment: Fragment(), LoginView {
+class LoginFragment: MvpAppCompatFragment(), LoginView {
 
     private lateinit var binding: FragmentLoginBinding
 
-    private val loginPresenter = LoginPresenterImpl()
+    private val authRepository = AuthRepositoryImpl()
+
+    @InjectPresenter
+    lateinit var  loginPresenter: LoginPresenterImpl
+
+    @ProvidePresenter
+    fun provideLoginPresenter(): LoginPresenterImpl {
+        return LoginPresenterImpl(authRepository)
+    }
 
     private lateinit var email: String
     private lateinit var password: String
@@ -43,7 +55,6 @@ class LoginFragment: Fragment(), LoginView {
             password = binding.passwordInput.text.toString()
 
             hideKeyboard()
-
             loginPresenter.login(email, password)
         }
     }
@@ -74,7 +85,7 @@ class LoginFragment: Fragment(), LoginView {
         binding.passwordInputLayout.error = message
     }
 
-    fun Fragment.hideKeyboard() {
+    private fun hideKeyboard() {
         val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(requireView().windowToken, 0)
     }

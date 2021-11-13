@@ -1,10 +1,10 @@
 package com.example.mvpexample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.arellomobile.mvp.MvpAppCompatActivity
 import com.example.mvpexample.ui.login.LoginFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : MvpAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
